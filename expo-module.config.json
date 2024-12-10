@@ -1,17 +1,9 @@
 {
-  "platforms": [
-    "apple",
-    "android",
-    "web"
-  ],
-  "apple": {
-    "modules": [
-      "RnUrlResolverModule"
-    ]
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["RnUrlResolverModule"]
   },
   "android": {
-    "modules": [
-      "expo.modules.rnurlresolver.RnUrlResolverModule"
-    ]
+    "modules": ["expo.modules.rnurlresolver.RnUrlResolverModule"]
   }
 }

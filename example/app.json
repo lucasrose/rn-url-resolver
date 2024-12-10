@@ -13,6 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "associatedDomains": ["applinks:tracking-link.example.com"],
       "supportsTablet": true,
       "bundleIdentifier": "expo.modules.rnurlresolver.example"
     },
@@ -21,7 +22,21 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "expo.modules.rnurlresolver.example"
+      "package": "expo.modules.rnurlresolver.example",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "tracking-link.example.com",
+              "pathPrefix": "/"
+            }
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -1,8 +1,11 @@
 package expo.modules.rnurlresolver
 
+import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import java.net.HttpURLConnection
 import java.net.URL
+import android.util.Log
 
 class RnUrlResolverModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
@@ -14,37 +17,34 @@ class RnUrlResolverModule : Module() {
     // The module will be accessible from `requireNativeModule('RnUrlResolver')` in JavaScript.
     Name("RnUrlResolver")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants(
-      "PI" to Math.PI
-    )
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
-    }
-
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { value: String ->
-      // Send an event to JavaScript.
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
-    View(RnUrlResolverView::class) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { view: RnUrlResolverView, url: URL ->
-        view.webView.loadUrl(url.toString())
-      }
-      // Defines an event that the view can send to JavaScript.
-      Events("onLoad")
+    AsyncFunction("resolveUrl") { encodedUrl: String, token: String?, promise: Promise ->
+      resolveUrl(encodedUrl, token, promise)
     }
   }
 }
+
+fun resolveUrl(encodedUrl: String, token: String? = null, promise: Promise ) {
+  if (encodedUrl.isEmpty()) {
+    promise.reject("0", "Unable to handle URL: No url provided", null)
+  }
+  Thread {
+    try {
+      val originalURL = URL(encodedUrl)
+      val connection = originalURL.openConnection() as HttpURLConnection
+      connection.instanceFollowRedirects = false
+
+      if (token != null) {
+        connection.setRequestProperty("Authorization", "Bearer ${token}")
+      }
+
+      val resolvedURL = URL(connection.getHeaderField("Location"))
+      promise.resolve(resolvedURL.toString())
+    } catch (e: Exception) {
+        Log.e("App Link", "Error resolving URL", e)
+        promise.reject("Cannot resolve URL ${e.message}", null, e)
+    }
+  }.start()
+}
+

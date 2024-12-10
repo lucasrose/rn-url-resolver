@@ -1,12 +1,14 @@
-import { NativeModule, requireNativeModule } from 'expo';
+import { NativeModule, requireNativeModule } from "expo";
+import { RnUrlResolverType } from "./RnUrlResolver.types";
 
-import { RnUrlResolverModuleEvents } from './RnUrlResolver.types';
-
-declare class RnUrlResolverModule extends NativeModule<RnUrlResolverModuleEvents> {
-  PI: number;
-  hello(): string;
-  setValueAsync(value: string): Promise<void>;
+declare class RnUrlResolverModule extends NativeModule<RnUrlResolverType> {
+  resolveUrl(url: string, token?: string): Promise<string>;
 }
-
 // This call loads the native module object from the JSI.
-export default requireNativeModule<RnUrlResolverModule>('RnUrlResolver');
+const RnResolver = requireNativeModule<RnUrlResolverModule>("RnUrlResolver");
+
+export default {
+  resolveUrl: async (url: string, token?: string): Promise<string> => {
+    return await RnResolver.resolveUrl(url, token);
+  },
+} as RnUrlResolverType;

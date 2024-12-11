@@ -3,7 +3,7 @@ This is an expo module which will resolve a url to its final destination. It is 
 
 ### Installation
 1. Install `npm install rn-url-resolver`
-2. If deep linking is necessary, add the correct associated domains & intent filters `tracking-link.example.com` to your `app.json`
+2. If deep linking is necessary, host the correct aasa for the subdomain and add the correct associated domains & intent filters ie. `tracking-link.example.com` to your `app.json`
 
 For iOS
 ```json
@@ -39,14 +39,6 @@ import RnUrlResolver from "rn-url-resolver";
 ```typescript
 const url = "https://tracking-link.example.com/ls/click?123456";
 const token: string | undefined = 'example-token';
-const resolvedUrl = await RnUrlResolver.resolveUrl(url, token);
-```
-```typescript
-  const url = Linking.useURL();
-
-  const parsedUrl = await RnUrlResolver.resolveUrl(url);
-  if (parsedUrl) {
-    // Handle the url
-  }
+const resolvedUrl = await RnUrlResolver.resolveUrl({ url, token });
 ```
 

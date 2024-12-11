@@ -13,13 +13,13 @@ public class RnUrlResolverModule: Module {
         
         // Defines a JavaScript function that always returns a Promise and whose native code
         // is by default dispatched on the different thread than the JavaScript runtime runs on.
-        AsyncFunction("resolveUrl") { (encodedURL: String, token: String?, promise: Promise) in
-            resolveUrl(encodedUrl: encodedURL, token: token, promise: promise)
+        AsyncFunction("resolveUrl") { (encodedURL: String, token: String?, allowReturnFromFailedUrl: Bool?, promise: Promise) in
+            resolveUrl(encodedUrl: encodedURL, token: token, allowReturnFromFailedUrl: allowReturnFromFailedUrl, promise: promise)
         }
     }
 }
 
-func resolveUrl(encodedUrl: String, token: String? = nil, promise: Promise) {
+func resolveUrl(encodedUrl: String, token: String? = nil, allowReturnFromFailedUrl: Bool? = false, promise: Promise) {
     if encodedUrl.isEmpty {
         promise.reject("0", "Unable to handle URL: No URL provided")
         return
@@ -29,16 +29,9 @@ func resolveUrl(encodedUrl: String, token: String? = nil, promise: Promise) {
         promise.reject("0", "Unable to handle URL: Invalid URL format")
         return
     }
-    
-    var request = URLRequest(url: url)
-    
-    // Add session token if provided
-    if let authToken = token {
-        request.addValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-    }
 
     let redirectManager = RedirectManager()
-    redirectManager.getFinalURL(fromURL: url) { finalURL in
+    redirectManager.getFinalURL(fromURL: url, withToken: token, allowReturnFromFailedUrl: allowReturnFromFailedUrl) { finalURL in
         if let finalURL = finalURL {
             promise.resolve(finalURL.absoluteString)
         } else {
@@ -50,13 +43,29 @@ func resolveUrl(encodedUrl: String, token: String? = nil, promise: Promise) {
 class RedirectManager: NSObject, URLSessionTaskDelegate {
     private var finalURL: URL?
     private var completion: ((URL?) -> Void)?
-    func getFinalURL(fromURL initialURL: URL, completion: @escaping (URL?) -> Void) {
+    func getFinalURL(fromURL initialURL: URL, withToken token: String? = nil, allowReturnFromFailedUrl: Bool?, completion: @escaping (URL?) -> Void) {
         self.completion = completion
 
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+
+        var request = URLRequest(url: initialURL)
         
-        let task = session.dataTask(with: initialURL) { _, _, error in
+        // Add session token if provided
+        if let authToken = token {
+            request.addValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let task = session.dataTask(with: request) { _, _, error in
             if let error = error {
+
+                if allowReturnFromFailedUrl ?? false {
+                    if let nsError = error as NSError? {
+                        if let redirectURLString = nsError.userInfo["NSErrorFailingURLStringKey"] as? String {
+                            completion(URL(string: redirectURLString)!)
+                            return
+                        }
+                    }
+                }
                 print("Error resolving URL: \(error)")
                 completion(nil)
             } else {

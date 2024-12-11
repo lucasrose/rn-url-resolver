@@ -13,7 +13,10 @@ export default function App() {
           title="Get Url"
           onPress={async () => {
             try {
-              const newUrl = await RnUrlResolver.resolveUrl(encodedURL, token);
+              const newUrl = await RnUrlResolver.resolveUrl({
+                url: encodedURL,
+                token,
+              });
               Alert.alert("Resolved URL", newUrl);
             } catch (e) {
               Alert.alert("Error", e.message);

@@ -1,7 +1,7 @@
 // Reexport the native module. On web, it will be resolved to RnUrlResolverModule.web.ts
 // and on native platforms to RnUrlResolverModule.ts
 import RnUrlResolverModule from "./RnUrlResolverModule";
-import { RnUrlResolver } from "./RnUrlResolver.types";
+import { ResolveUrlParams } from "./RnUrlResolver.types";
 
 export default {
   /**
@@ -14,6 +14,7 @@ export default {
    *
    * @param {string} url - The URL to resolve.
    * @param {string} [token] - Optional authorization token to be included in the request headers.
+   * @param {boolean} [allowReturnFromFailedUrl] - Optionally allow returning the URL from failed redirects. Defaults to false. iOS only.
    *
    * @returns {Promise<string>} A promise that resolves with the final resolved URL as a string.
    *
@@ -29,7 +30,15 @@ export default {
    *     console.error(error); // Handles any errors that occur during resolution
    *   });
    */
-  resolveUrl: async (url: string, token?: string): Promise<string> => {
-    return await RnUrlResolverModule.resolveUrl(url, token);
+  resolveUrl: async ({
+    url,
+    token,
+    allowReturnFromFailedUrl = false,
+  }: ResolveUrlParams): Promise<string> => {
+    return await RnUrlResolverModule.resolveUrl(
+      url,
+      token,
+      allowReturnFromFailedUrl
+    );
   },
-} as RnUrlResolver;
+};

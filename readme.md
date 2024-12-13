@@ -19,7 +19,7 @@ For Android
       "category": ["BROWSABLE", "DEFAULT"],
       "data": [
         {
-          "scheme": "https",
+          "scheme": "https", // or "http"
           "host": "tracking-link.example.com",
           "pathPrefix": "/"
         }
@@ -31,14 +31,33 @@ For Android
 
 ### Usage
 
-There's an optional token parameter which can be included to authenticate a request (using bearer auth) if necessary.
 ```typescript
 import RnUrlResolver from "rn-url-resolver";
 ```
 - Resolve the url
+
 ```typescript
 const url = "https://tracking-link.example.com/ls/click?123456";
 const token: string | undefined = 'example-token';
-const resolvedUrl = await RnUrlResolver.resolveUrl({ url, token });
-```
+const resolvedUrl = await RnUrlResolver.resolveUrl({ url, token, allowReturnFromFailedUrl: boolean });
 
+```
+The `token` parameter is optional and defaults to `undefined`.
+The `allowReturnFromFailedUrl` parameter is optional and defaults to `false`. Only for iOS. If set to `true`, the url will be returned even when there is an `NSErrorFailingURLStringKey`.
+Note: You may need to specify some info.plist settings for this setting to actually work. Here's an example config for expo:
+
+```typescript
+ios: {
+  infoPlist: {
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: false,
+          NSExceptionDomains:[
+            ['example.com']: {
+              NSExceptionAllowsInsecureHTTPLoads: true,
+              NSIncludesSubdomains: false,
+            },
+          ],
+        }
+  },
+}
+```

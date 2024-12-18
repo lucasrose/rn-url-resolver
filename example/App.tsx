@@ -2,7 +2,6 @@ import RnUrlResolver from "rn-url-resolver";
 import { Alert, Button, SafeAreaView, ScrollView, Text } from "react-native";
 
 const encodedURL = "";
-const token = "";
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
@@ -15,7 +14,6 @@ export default function App() {
             try {
               const newUrl = await RnUrlResolver.resolveUrl({
                 url: encodedURL,
-                token,
               });
               Alert.alert("Resolved URL", newUrl);
             } catch (e) {

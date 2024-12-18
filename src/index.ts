@@ -15,7 +15,10 @@ export default {
    * @param {string} url - The URL to resolve.
    * @param {string} [token] - Optional authorization token to be included in the request headers.
    * @param {boolean} [allowReturnFromFailedUrl] - Optionally allow returning the URL from failed redirects. Defaults to false. iOS only.
-   *
+   * @param {boolean} [directlyReturnResponseUrl] - Optionally return the response URL instead of the final URL. Defaults to false. iOS only.
+   * @param {boolean} [disableCache] - Optionally disable caching. Defaults to false. iOS only.
+   * @param {LocationMatch} [redirectUntil] - Optionally specify the maximum number of redirects to follow. 'none' | 'end' | 'locationMatch'. Defaults to none. iOS only.
+   * @param {"none" | "end" | "locationMatch"} [locationHeaderMatch] - Specify matching location header. Need to set redirectUntil to 'locationMatch'. iOS only.
    * @returns {Promise<string>} A promise that resolves with the final resolved URL as a string.
    *
    * @example
@@ -34,11 +37,19 @@ export default {
     url,
     token,
     allowReturnFromFailedUrl = false,
+    directlyReturnResponseUrl,
+    disableCache,
+    redirectUntil,
+    locationHeaderMatch,
   }: ResolveUrlParams): Promise<string> => {
     return await RnUrlResolverModule.resolveUrl(
       url,
       token,
-      allowReturnFromFailedUrl
+      allowReturnFromFailedUrl,
+      directlyReturnResponseUrl,
+      disableCache,
+      redirectUntil,
+      locationHeaderMatch
     );
   },
 };

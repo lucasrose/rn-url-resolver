@@ -19,7 +19,7 @@ class RnUrlResolverModule : Module() {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("resolveUrl") { encodedUrl: String, token: String?, allowReturnFromFailedUrl: Boolean?, promise: Promise ->
+    AsyncFunction("resolveUrl") { encodedUrl: String, token: String?, allowReturnFromFailedUrl: Boolean?, directlyReturnResponseUrl: Boolean?, disableCache: Boolean?, redirectUntil: String?, locationHeaderMatch: String?, promise: Promise ->
       resolveUrl(encodedUrl, token, promise)
     }
   }
